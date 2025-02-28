@@ -7,8 +7,12 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true, // Enable experimental decorator support
+    "emitDecoratorMetadata": true,  // Emit metadata for decorators
+    "strictPropertyInitialization": false, // Disable strict property initialization checks
+    "typeRoots": ["./node_modules/@types", "./src/types/"] // Ensure this points to the correct directory
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*.ts", "src/types/express.d.ts"],
   "exclude": ["node_modules"]
 }

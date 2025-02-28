@@ -36,7 +36,9 @@ export function Navbar() {
               Contact
             </Link>
             <button className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+              <Link to="/login" >
               Connexion
+              </Link>
             </button>
           </div>
         </div>

@@ -1,0 +1,269 @@
+D'accord ! Après avoir pris connaissance de l'ensemble du projet, je vais vous proposer une **refonte du backend** en me concentrant uniquement sur ce qui est **utile et nécessaire**, tout en gardant les routes publiques dans le frontend et en utilisant **PostgreSQL** comme base de données. Voici une présentation complète du projet de **A à Z**, suivie d'une proposition de structure backend optimisée.
+
+---
+
+## **Présentation du Projet : EduRédact**
+
+### **Objectif**
+EduRédact est une plateforme en ligne qui propose des services académiques de haute qualité, tels que :
+- Rédaction académique (mémoires, thèses, articles scientifiques).
+- Traduction spécialisée (documents académiques dans plus de 20 langues).
+- Correction et relecture (orthographe, grammaire, style).
+- Aide à la publication (soumission d'articles dans des revues scientifiques).
+
+La plateforme est conçue pour répondre aux besoins des **étudiants**, **chercheurs**, et **professionnels**, tout en offrant aux **rédacteurs** un espace pour proposer leurs services. Un système de vérification rigoureux garantit la qualité et la fiabilité des rédacteurs.
+
+---
+
+### **Fonctionnalités Clés**
+
+#### **1. Inscription et Connexion**
+- **Clients** : Inscription simple avec email et mot de passe.
+- **Rédacteurs** : Inscription avec vérification rigoureuse (téléphone, email, identité, adresse, diplômes).
+- **Admin** : Accès à un tableau de bord pour gérer les utilisateurs et les vérifications.
+
+#### **2. Tableaux de Bord**
+- **Clients** :
+  - Passer des commandes.
+  - Suivre l'avancement des travaux.
+  - Payer en ligne.
+- **Rédacteurs** :
+  - Gérer les commandes.
+  - Téléverser des documents.
+  - Suivre les paiements.
+- **Admin** :
+  - Valider les rédacteurs.
+  - Gérer les commandes et les paiements.
+  - Superviser les opérations.
+
+#### **3. Services**
+- **Rédaction académique**.
+- **Traduction spécialisée**.
+- **Correction et relecture**.
+- **Aide à la publication**.
+
+#### **4. Paiements Sécurisés**
+- Intégration de systèmes de paiement comme Stripe ou Mobile Money.
+- Historique des transactions et factures générées automatiquement.
+
+#### **5. Notifications et Feedback**
+- Notifications par email et SMS pour les étapes importantes (validation, paiement, livraison).
+- Feedback utilisateur pour améliorer la qualité des services.
+
+---
+
+## **Nouvelle Structure du Backend avec PostgreSQL**
+
+### **Objectifs de la Refonte**
+1. **Simplifier** : Garder uniquement ce qui est utile et nécessaire.
+2. **Optimiser** : Utiliser PostgreSQL pour une meilleure gestion des relations et des transactions.
+3. **Sécuriser** : Mettre en place une authentification robuste avec JWT.
+4. **Modulariser** : Structurer le backend en modules clairs et réutilisables.
+
+---
+
+### **Structure du Backend**
+
+```
+backend/
+├── src/
+│   ├── controllers/                # Contrôleurs pour gérer les requêtes
+│   │   ├── authController.ts       # Gère l'authentification (inscription, connexion)
+│   │   ├── clientController.ts     # Gère les actions des clients (commandes, paiements)
+│   │   ├── writerController.ts     # Gère les actions des rédacteurs (soumission, validation)
+│   │   ├── adminController.ts      # Gère les actions de l'admin (validation, supervision)
+│   │   ├── orderController.ts      # Gère les commandes
+│   │   ├── paymentController.ts    # Gère les paiements
+│   │   └── documentController.ts   # Gère les documents
+│   ├── models/                     # Entités de la base de données
+│   │   ├── User.ts                 # Entité User (clients, rédacteurs, admin)
+│   │   ├── Order.ts                # Entité Order (commandes)
+│   │   ├── Document.ts             # Entité Document (documents téléversés)
+│   │   └── Payment.ts              # Entité Payment (paiements)
+│   ├── routes/                     # Routes pour les API
+│   │   ├── authRoutes.ts           # Routes d'authentification
+│   │   ├── clientRoutes.ts         # Routes des clients
+│   │   ├── writerRoutes.ts         # Routes des rédacteurs
+│   │   ├── adminRoutes.ts          # Routes de l'admin
+│   │   ├── orderRoutes.ts          # Routes des commandes
+│   │   ├── paymentRoutes.ts        # Routes des paiements
+│   │   └── documentRoutes.ts       # Routes des documents
+│   ├── middleware/                 # Middleware pour la gestion des requêtes
+│   │   ├── authMiddleware.ts       # Middleware d'authentification (JWT)
+│   │   └── roleMiddleware.ts       # Middleware de gestion des rôles (client, writer, admin)
+│   ├── services/                   # Services pour la logique métier
+│   │   ├── authService.ts          # Service d'authentification
+│   │   ├── paymentService.ts       # Service de paiement
+│   │   ├── orderService.ts         # Service des commandes
+│   │   ├── documentService.ts      # Service des documents
+│   │   └── writerService.ts        # Service des rédacteurs
+│   ├── utils/                      # Utilitaires
+│   │   ├── errorHandler.ts         # Gestion des erreurs
+│   │   ├── logger.ts               # Logging des requêtes
+│   │   └── emailSender.ts          # Envoi d'emails
+│   ├── config/                     # Configuration
+│   │   ├── db.ts                   # Configuration de la base de données
+│   │   └── env.ts                  # Configuration des variables d'environnement
+│   └── index.ts                    # Point d'entrée du backend
+├── .env                            # Fichier des variables d'environnement
+├── package.json                    # Dépendances du projet
+├── tsconfig.json                   # Configuration TypeScript
+└── .gitignore                      # Fichiers à ignorer dans Git
+```
+
+---
+
+### **Entités Principales**
+
+#### **1. User (Utilisateur)**
+- **Attributs** :
+  - `id` : Identifiant unique.
+  - `email` : Email (unique).
+  - `password` : Mot de passe hashé.
+  - `role` : Rôle (client, writer, admin).
+  - `isVerified` : Statut de vérification (pour les rédacteurs).
+  - `firstName`, `lastName`, `country`, `city`, `dateOfBirth` : Informations du profil.
+  - `documents` : Documents téléversés (relation avec `Document`).
+  - `orders` : Commandes passées (relation avec `Order`).
+
+#### **2. Order (Commande)**
+- **Attributs** :
+  - `id` : Identifiant unique.
+  - `serviceType` : Type de service (rédaction, traduction, etc.).
+  - `description` : Description de la commande.
+  - `pageCount` : Nombre de pages.
+  - `urgency` : Urgence (standard, express).
+  - `price` : Prix calculé.
+  - `status` : Statut de la commande (pending, in_progress, completed).
+  - `client` : Référence à l'utilisateur client.
+  - `writer` : Référence à l'utilisateur rédacteur.
+
+#### **3. Document (Document)**
+- **Attributs** :
+  - `id` : Identifiant unique.
+  - `url` : URL du fichier stocké.
+  - `type` : Type de document (identity, diploma, proof_of_address).
+  - `writer` : Référence à l'utilisateur rédacteur.
+
+#### **4. Payment (Paiement)**
+- **Attributs** :
+  - `id` : Identifiant unique.
+  - `amount` : Montant du paiement.
+  - `paymentMethod` : Méthode de paiement (Stripe, Mobile Money).
+  - `status` : Statut du paiement (pending, completed, failed).
+  - `order` : Référence à la commande.
+
+---
+
+### **Flux Principaux**
+
+#### **1. Inscription et Connexion**
+- **Inscription** : Les clients et rédacteurs s'inscrivent via le frontend. Les rédacteurs doivent compléter leur profil et téléverser des documents.
+- **Connexion** : Les utilisateurs se connectent avec leur email et mot de passe. Un token JWT est généré pour l'authentification.
+
+#### **2. Tableaux de Bord**
+- **Client** : Passer des commandes, suivre l'avancement, payer en ligne.
+- **Rédacteur** : Gérer les commandes, téléverser des documents, suivre les paiements.
+- **Admin** : Valider les rédacteurs, gérer les commandes et les paiements.
+
+#### **3. Paiements**
+- Les paiements sont gérés via Stripe ou Mobile Money. Un historique des transactions est disponible.
+
+#### **4. Notifications**
+- Les utilisateurs reçoivent des notifications par email et SMS pour les étapes importantes (validation, paiement, livraison).
+
+---
+
+### **Routes Publiques dans le Frontend**
+
+Les routes publiques (inscription, connexion, etc.) sont gérées dans le frontend. Le backend expose uniquement des API sécurisées pour :
+- L'authentification.
+- La gestion des commandes.
+- La gestion des paiements.
+- La gestion des documents.
+
+---
+
+### **Conclusion**
+
+Cette refonte du backend avec PostgreSQL et TypeORM permet de :
+1. **Simplifier** la structure en supprimant les éléments inutiles.
+2. **Optimiser** les performances grâce à PostgreSQL.
+3. **Sécuriser** les données avec JWT et des middlewares robustes.
+4. **Modulariser** le code pour une meilleure maintenabilité.
+
+Si vous êtes d'accord avec cette approche, nous pouvons commencer par implémenter les entités et les contrôleurs. Faites-moi signe pour la suite ! 🚀
+
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── auth/
+│   │   │   ├── LoginForm.tsx          # Formulaire de connexion
+│   │   │   ├── RegisterForm.tsx       # Formulaire d'inscription
+│   │   │   └── AuthWrapper.tsx        # Wrapper pour l'authentification (optionnel)
+│   │   ├── Dashboard/
+│   │   │   ├── ClientDashboard/
+│   │   │   │   ├── FeedbackForm.tsx   # Formulaire de feedback
+│   │   │   │   ├── NewOrderForm.tsx   # Formulaire de nouvelle commande
+│   │   │   │   └── OrderList.tsx      # Liste des commandes
+│   │   │   └── WriterDashboard/
+│   │   │       ├── AssignedOrders.tsx # Commandes assignées
+│   │   │       ├── ProfileEditor.tsx  # Éditeur de profil
+│   │   │       └── Notification.tsx     # Notification
+│   │   │       └── SubmitDOcumentForm.tsx     # Téléversement des travaux
+│   │   │       └── Payment.tsx     # paiememnt
+│   │   ├── forms/
+│   │   │   ├── EstimateForm.tsx       # Formulaire d'estimation
+│   │   │   └── ValidateForm.tsx       # Formulaire de vérification des rédacteurs
+│   │   ├── home/
+│   │   │   ├── Hero.tsx               # Section Hero de la page d'accueil
+│   │   │   ├── HowItWorks.tsx         # Section "Comment ça marche"
+│   │   │   ├── PricingSection.tsx     # Section des tarifs
+│   │   │   ├── ServicesSection.tsx    # Section des services
+│   │   │   ├── Testimonials.tsx       # Témoignages
+│   │   │   └── UploadSection.tsx      # Section de téléversement
+│   │   ├── layout/
+│   │   │   ├── Footer.tsx             # Footer global
+│   │   │   └── Navbar.tsx             # Footer global
+│   │       ├── DashboardFooter.tsx    # Footer du tableau de bord
+│   │       ├── DashboardLayout.tsx    # Layout du tableau de bord
+│   │       ├── DashboardNavbar.tsx    # Navbar du tableau de bord
+│   │       ├── Sidebar.tsx            # Sidebar du tableau de bord
+│   │       └── ThemeToggle.tsx        # Bouton de changement de thème
+│   ├── hooks/
+│   │   └── useTheme.ts                # Hook personnalisé pour le thème
+│   ├── lib/
+│   │   ├── db.ts                      # Configuration de la base de données (si nécessaire)
+│   ├── pages/
+│   │   ├── AboutPage.tsx              # Page "À propos"
+│   │   ├── ClientDashboardPage.tsx    # Page du tableau de bord client
+│   │   ├── ContactPage.tsx            # Page de contact
+│   │   ├── EstimateForm.tsx           # Page du formulaire d'estimation
+│   │   ├── EstimationPage.tsx         # Page d'estimation
+│   │   ├── HomePage.tsx               # Page d'accueil
+│   │   ├── LoginPage.tsx              # Page de connexion
+│   │   ├── PricingPage.tsx            # Page des tarifs
+│   │   ├── RegisterPage.tsx           # Page d'inscription
+│   │   ├── ServiceDetailPage.tsx      # Page de détail des services
+│   │   ├── ServicesPage.tsx           # Page des services
+│   │   ├── VerificationPage.tsx       # Page de vérification des rédacteurs
+│   │   └── WriterDashboardPage.tsx    # Page du tableau de bord rédacteur
+│   ├── services/
+│   │   ├── api.ts                     # Configuration des appels API
+│   │   ├── authService.ts             # Service d'authentification
+│   │   ├── orderService.ts            # Service des commandes
+│   │   ├── paymentService.ts          # Service des paiements
+│   │   ├── documentService.ts         # Service des documents
+│   │   └── estimateService.ts         # Service d'estimation
+│   │   └── ProfileService.ts         # Service edition profil
+│   │   └── writerService.ts         # Service de redaction
+│   ├── store/
+│   │   └── authStore.ts               # Store pour l'authentification
+│   ├── App.tsx                        # Composant principal de l'application
+│   ├── index.css                      # Styles globaux
+│   ├── main.tsx                       # Point d'entrée de l'application
+│   └── types.ts                       # Types TypeScript globaux
+├── .env                               # Variables d'environnement
+├── package.json                       # Dépendances du projet
+├── tsconfig.json                      # Configuration TypeScript
+└── vite.config.ts                     # Configuration Vite

@@ -1,5 +1,5 @@
-import React from 'react';
 import { FileText, Languages, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom'; // Importe Link pour la redirection
 
 export function Hero() {
   return (
@@ -14,9 +14,12 @@ export function Hero() {
             par des experts qualifiés.
           </p>
           <div className="flex justify-center space-x-4">
-            <button className="bg-white text-indigo-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100">
-              Commencer maintenant
-            </button>
+            <Link
+              to="/login" // Redirige vers la page de connexion
+              className="bg-white text-indigo-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100"
+            >
+              Commencer Maintenant
+            </Link>
             <button className="border-2 border-white px-6 py-3 rounded-md font-semibold hover:bg-white hover:text-indigo-600">
               En savoir plus
             </button>
